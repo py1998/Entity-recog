@@ -12,6 +12,7 @@ import pandas as pd
 import inflect
 from word2number import w2n
 from food_check import main_check
+#It will check and change plural and singular
 inflect=inflect.engine()
 
 include=["non-veg","non-vegeterian","vegetarian","veg"]
