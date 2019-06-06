@@ -166,7 +166,7 @@ def return_entities(sentence):
                 elif entity[0]=='and' and pos[index+1][0] in top and pos[index-1][0] in top:
                     comma_check.append(index)
                     check_list.append(entity[0])
-
+    #tak_list is dictionary that will store index of a, an, the in sentence
     tak_list={}
     for element in sing_list:
         if element==' a ' or element==' an ':
@@ -176,11 +176,12 @@ def return_entities(sentence):
 
     new_sentence=""
     for idx,wor in enumerate(sentence.split(' ')):
-        try:
-            tmp = wn.synsets(wor)[0].pos()  ## dont want to capitalise verbs
-        except Exception as ex:
-            print(ex)
-            tmp = "r"
+#         try:
+#             tmp = wn.synsets(wor)[0].pos()  ## dont want to capitalise verbs
+#         except Exception as ex:
+#             print(ex)
+#             tmp = "r"
+        #check_list will store commma, and, and delemiters(DT)
         if wor.lower() in check_list:
             if wor.lower()=="," or wor.lower()=="and":
                 if idx in comma_check:
@@ -200,25 +201,32 @@ def return_entities(sentence):
         elif wor.lower() in blacklist1:
             new_sentence = new_sentence + wor.lower() + " "
         else:
+            #Capitalise all first alphabet of words that are not (check_list(remove it!!), adjectives, blaclist)
             new_sentence = new_sentence + wor[:1].upper() + wor[1:] + " "  ## else capitalise all other words
     new_sentence = ' '.join(new_sentence.split())
     if new_sentence.endswith('.'):
         new_sentence=new_sentence[:-1]
     # new_sentence.replace("."," . ")
-    check= '.' in new_sentence
+#    check= '.' in new_sentence this line was of no use
+    
     tok=word_tokenize(new_sentence)
     tokens_pos=pos_tag(tok)
+    #ne_chunk will combine proper noun
     chunking=nltk.ne_chunk(tokens_pos, binary=True)
+    
+    #check if there is any sub tree
     new_sentence_list =  [" ".join(w for w, t in elt) for elt in chunking if isinstance(elt, nltk.Tree)]
     print(new_sentence_list)
-    chunking.draw()
+   # chunking.draw()
     list=[]
+    
+    #in dict_word value of each word is 0
     dict_word={}
-    print(new_sentence)
+    #print(new_sentence)
     for word in new_sentence.split(" "):
         dict_word[word]=0
-    print(dict_word)
-    word_to_token={}
+    #print(dict_word)
+    word_to_token={} #No idea why this is defined
     for word in new_sentence.split(" "):
         word_to_token[word]=word
 
@@ -230,15 +238,18 @@ def return_entities(sentence):
     for i, unique in enumerate(tokens_pos):
         sentence=""
         if i< len(tokens_pos)-1:
+            #we will take all consecutives nouns and append them to list
             if (unique[1] == "NNP" or unique[1]== "NN") and (tokens_pos[i+1][1]=="NNP" or tokens_pos[i+1][1]=="NNS" or tokens_pos[i+1][1]=="NN" or tokens_pos[i+1][1]=="NNPS"):
                 j=i
                 loopno=1
                 enter=0
-                print(unique[0])
+             #   print(unique[0])
                 while j<len(tokens_pos)-1 and (tokens_pos[j][1]== "NNP" or tokens_pos[j][1]=="NN") and (tokens_pos[j+ 1][1] == "NNP" or tokens_pos[j + 1][1] == "NNS" or tokens_pos[j+1][1]=="NN" or tokens_pos[i+1][1]=="NNPS"):
-                    print("inside")
+                    #print("inside")
                     enter=enter+1
-                    if dict_word[tokens_pos[j][0]]==0 and enter==1:
+                    #dict_word will check which word is taken
+                    #sentence will add nouns
+                    if dict_word[tokens_pos[j][0]]==0 a")nd enter==1:
                         sentence+=tokens_pos[j][0]+ " "
                         dict_word[tokens_pos[j][0]]=1
                         sentence+=tokens_pos[j+1][0]+ " "
@@ -247,12 +258,13 @@ def return_entities(sentence):
                         sentence += tokens_pos[j+1][0] + " "
                         dict_word[tokens_pos[j+1][0]] = 1
                     j=j+1
-
+                #remove last space from sentence
                 sentence=sentence[:-1]
                 for wor in sentence.split():
                     word_to_token[wor]=sentence
                 dict_word[tokens_pos[j][0]]=1
                 list.append(sentence)
+            #here we will check if a Noun is followed by words like "with", "of" ,and then again noun come
             elif i<len(tokens_pos)-2 and (unique[1]== "NNP" or unique[1]=="NN" or unique[1]=="NNS") and tokens_pos[i+1][0] in stop_list and (tokens_pos[i+2][1]=="NNP" or tokens_pos[i+2][1]=="NN" or tokens_pos[i+2][1]=="NNS"):
                 j=i
                 dict_word[tokens_pos[j][0]]=1
@@ -272,7 +284,7 @@ def return_entities(sentence):
                 for wor in sentence.split():
                     word_to_token[wor]=sentence
                 list.append(sentence)
-
+            #last noun
             elif unique[1]=="NNP" or unique[1]=="NN" or unique[1]=="NNS" :
                 if(dict_word[unique[0]])==0:
                     list.append(unique[0])
@@ -280,23 +292,30 @@ def return_entities(sentence):
                 list.append(unique[0])
             elif unique[0].lower() in cuisine:
                 list.append(unique[0])
-
+    #last noun of sentence
     if tokens_pos[len(tokens_pos)-1][1]=="NNP" or tokens_pos[len(tokens_pos)-1][1]=="NN" or tokens_pos[len(tokens_pos)-1][1]=="NNS":
         if dict_word[tokens_pos[len(tokens_pos)-1][0]]==0:
             list.append(tokens_pos[len(tokens_pos)-1][0])
+    #check quantity
     for i, unique in enumerate(tokens_pos):
         if unique[1]=="CD":
             quant_list.append(unique[0])
     new1_list=[]
+    original_sentence1 = original_sentence
+    
     for key in quant_list:
-        idx=original_sentence.find(key)
+        idx=original_sentence1.find(key)
         new1_list.append((idx,key))
+        #replace the number with some symbol
+        original_sentence1 = original_sentence1[:idx] + "$" + original_sentence1[idx+1:] 
 
     # print(list)
     for element in new_sentence.split(" "):
         if element.lower() in also_check and dict_word[element]==0:
             list.append(element)
     remove_list=[]
+    #new_sentence list is subtree
+    #mereko pta nhi neeche kya ho rha hai
     for element2 in new_sentence_list:
         for unique2 in list:
             if element2 in unique2 :
