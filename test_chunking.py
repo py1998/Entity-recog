@@ -249,7 +249,7 @@ def return_entities(sentence):
                     enter=enter+1
                     #dict_word will check which word is taken
                     #sentence will add nouns
-                    if dict_word[tokens_pos[j][0]]==0 a")nd enter==1:
+                    if (dict_word[tokens_pos[j][0]]==0) and enter==1):
                         sentence+=tokens_pos[j][0]+ " "
                         dict_word[tokens_pos[j][0]]=1
                         sentence+=tokens_pos[j+1][0]+ " "
