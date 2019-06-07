@@ -115,7 +115,7 @@ def gram_check(sentence):
             #to find attributes, we are storing match_string(input which got matched), and we store it in item_found
             #later, we will remove item_found from our sentence and rem. part will be checked for attributes
             item_found=match_list[0][2]
-            transform_dict[match_list[0][2]]=match_list[0][1]
+            transform_dict[match_list[0][1]]=match_list[0][2]
             #food1 will be return the food which hotel will offer
             foodl.append(match_list[0][1])
             temp_food_name = match_list[0][1]
