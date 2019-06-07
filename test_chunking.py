@@ -351,31 +351,36 @@ def return_entities(sentence):
             top_list.remove(element)
             top_list.append(element1)
     sep_list=[]
+    #main check
     food_dict, transform_dict=main_check(top_list)
     print(food_dict)
+    #new_food
     nf_list=[]
+    
     for key in food_dict:
         idx=original_sentence.find(transform_dict[key])
         nf_list.append((idx,key))
+    
     new1_list.sort(reverse=True)
     nf_list.sort()
     check_list=[]
     found_dict={}
 
     pre_dict={}
+    #tak_list is storing determiners
+    #mereko nhi pata niche kya ho rha hai :(
     for element in tak_list:
         for food in nf_list:
             if element[0]<food[0]:
                 pre_dict[food[1]]=element
                 break
-
-
-
-
     c_dict={}
     for i,element in enumerate(nf_list):
         flag=0
         for indiv in new1_list:
+          #c_dict = {key:value}
+          #key = [index_of_food, food]
+          #value = [index_of_number, number]
             if indiv[0]<element[0] and indiv not in check_list:
                 c_dict[element]=indiv
                 check_list.append(indiv)
@@ -385,6 +390,8 @@ def return_entities(sentence):
             c_dict[element]=(-1,-1)
     final_dict={}
     element_list=[]
+    #mereko nhi pta nhi wala kyon kara
+    #It will not take words with "s" ending
     for element in nf_list:
         check=0
         for word in element[1].split():
@@ -395,29 +402,11 @@ def return_entities(sentence):
             element_list.append(element)
 
     for i,element in enumerate(nf_list):
-        if i==0:
             if c_dict[element]==(-1,-1):
-                if inflect.singular_noun(element[1].split()[0]) is False or element in element_list or element[1] in pre_dict:
-                    final_dict[element[1]]=1
-                else:
-                    final_dict[element[1]]=2
-            else:
-                check_list.append(c_dict[element])
-                final_dict[element[1]] = c_dict[element][1]
-
-        else:
-            if c_dict[element]==(-1,-1):
-                if inflect.singular_noun(element[1].split()[0]) is False or element in element_list or element[1] in pre_dict:
-                    final_dict[element[1]]=1
-                else:
-                    final_dict[element[1]]=2
-            # elif c_dict[element] in check_list:
-            #     if inflect.singular_noun(element[1]) is False or element  in element_list:
-            #         final_dict[element[1]]=1
-            #     else:
-            #         final_dict[element[1]]=2
+                final_dict[element[1]]=1
             else:
                 final_dict[element[1]]=c_dict[element][1]
+                
     new_food_dict={}
     for element in food_dict:
         new_food_dict[element]={}
@@ -436,10 +425,7 @@ def return_entities(sentence):
     for element in new_food_dict:
         if element in final_dict:
             new_food_dict[element]["quantity"]=final_dict[element]
-
-    print(new_food_dict)
-
-
+    #print(new_food_dict)
     print(final_dict)
     return top_list, new_food_dict , transform_dict
 
