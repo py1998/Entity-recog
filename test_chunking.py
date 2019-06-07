@@ -319,13 +319,16 @@ def return_entities(sentence):
     for element2 in new_sentence_list:
         for unique2 in list:
             if element2 in unique2 :
+                #we want to remove proper substring
                 if not element2==unique2:
                     remove_list.append(element2)
+    #Remove all elements in remove_list if they are in new_sentence_list
     for element in remove_list:
         if element in new_sentence_list:
             new_sentence_list.remove(element)
 
     final_list=list+new_sentence_list
+    #remove common parts
     set1=set(final_list)
     new_list=[]
     for element in set1:
@@ -335,12 +338,14 @@ def return_entities(sentence):
     if '' in new_list:
         new_list.remove('')
     top_list=[]
+    #if elements of new_list are not in blacklist, then append them in top_list
     for element in new_list:
         if element.lower() not in blacklist1 and element not in blacklist1:
             top_list.append(element.lower())
     check_dict={}
     check_list=[]
     for element in top_list:
+      #order is a noun, so remove it
         if "order " in element:
             element1=element.replace("order ","")
             top_list.remove(element)
